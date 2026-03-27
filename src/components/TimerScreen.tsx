@@ -141,6 +141,7 @@ const TimerScreen = ({ totalSeconds, onBack }: TimerScreenProps) => {
 
   const statusLabel: Record<TimerStatus, string> = {
     ready: "Ready",
+    "pre-countdown": "Get Ready",
     running: "Running",
     paused: "Paused",
     done: "Time's Up",
@@ -148,6 +149,7 @@ const TimerScreen = ({ totalSeconds, onBack }: TimerScreenProps) => {
 
   const statusColor: Record<TimerStatus, string> = {
     ready: "text-primary",
+    "pre-countdown": "text-primary",
     running: "text-primary",
     paused: "text-warning",
     done: "text-urgent",
