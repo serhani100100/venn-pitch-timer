@@ -28,7 +28,7 @@ const SetupScreen = ({ onStart }: SetupScreenProps) => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 animate-fade-up">
-      <img src={vennLogo} alt="Venn Innovation" width={80} height={80} className="mb-6 logo-glow" />
+      <img src={vennLogo} alt="Venn Innovation" width={140} height={140} className="mb-6 logo-glow" />
       <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2 tracking-tight text-center">
         Venn Innovation Pitch
       </h1>

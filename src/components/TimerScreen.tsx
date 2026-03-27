@@ -159,7 +159,7 @@ const TimerScreen = ({ totalSeconds, onBack }: TimerScreenProps) => {
     <div className="min-h-screen flex flex-col items-center justify-center p-6 animate-fade-scale">
       {/* Header */}
       <div className="flex flex-col items-center mb-4">
-        <img src={vennLogo} alt="Venn Innovation" width={56} height={56} className="mb-3 logo-glow" />
+        <img src={vennLogo} alt="Venn Innovation" width={100} height={100} className="mb-3 logo-glow" />
         <h1 className="text-xl md:text-2xl font-bold text-foreground tracking-tight">
           Venn Innovation Pitch
         </h1>
