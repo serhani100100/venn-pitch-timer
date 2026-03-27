@@ -177,10 +177,19 @@ const TimerScreen = ({ totalSeconds, onBack }: TimerScreenProps) => {
         </span>
       </div>
 
+      {/* Pre-countdown overlay */}
+      {status === "pre-countdown" && (
+        <div className="timer-digit text-[10rem] md:text-[14rem] lg:text-[18rem] font-bold leading-none select-none text-primary animate-fade-scale" key={preCount}>
+          {PRE_COUNTDOWN_LABELS[preCount] ?? ""}
+        </div>
+      )}
+
       {/* Timer */}
-      <div className={`timer-digit text-[8rem] md:text-[12rem] lg:text-[16rem] font-bold leading-none select-none transition-colors duration-500 ${getTimerClass()}`}>
-        {status === "done" ? "00:00" : formatTime(remaining)}
-      </div>
+      {status !== "pre-countdown" && (
+        <div className={`timer-digit text-[8rem] md:text-[12rem] lg:text-[16rem] font-bold leading-none select-none transition-colors duration-500 ${getTimerClass()}`}>
+          {status === "done" ? "00:00" : formatTime(remaining)}
+        </div>
+      )}
 
       {status === "done" && (
         <p className="text-urgent text-3xl md:text-5xl font-bold mt-4 pulse-urgent tracking-wide">
@@ -188,32 +197,34 @@ const TimerScreen = ({ totalSeconds, onBack }: TimerScreenProps) => {
         </p>
       )}
 
-      {/* Controls */}
-      <div className="flex items-center gap-4 mt-10">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 px-6 py-4 rounded-xl bg-secondary text-secondary-foreground font-semibold text-base transition-all duration-200 hover:bg-secondary/80 active:scale-95"
-        >
-          <ArrowLeft size={20} />
-          Menu
-        </button>
-        <button
-          onClick={reset}
-          className="flex items-center gap-2 px-6 py-4 rounded-xl bg-secondary text-secondary-foreground font-semibold text-base transition-all duration-200 hover:bg-secondary/80 active:scale-95"
-        >
-          <RotateCcw size={20} />
-          Reset
-        </button>
-        {status !== "done" && (
+      {/* Controls — hidden while running or pre-countdown */}
+      {status !== "running" && status !== "pre-countdown" && (
+        <div className="flex items-center gap-4 mt-10">
           <button
-            onClick={togglePause}
-            className="flex items-center gap-2 px-8 py-4 rounded-xl bg-primary text-primary-foreground font-bold text-base transition-all duration-200 hover:brightness-110 hover:shadow-lg hover:shadow-primary/30 active:scale-95"
+            onClick={onBack}
+            className="flex items-center gap-2 px-6 py-4 rounded-xl bg-secondary text-secondary-foreground font-semibold text-base transition-all duration-200 hover:bg-secondary/80 active:scale-95"
           >
-            {status === "running" ? <Pause size={22} /> : <Play size={22} />}
-            {status === "running" ? "Pause" : status === "paused" ? "Resume" : "Start"}
+            <ArrowLeft size={20} />
+            Menu
           </button>
-        )}
-      </div>
+          <button
+            onClick={reset}
+            className="flex items-center gap-2 px-6 py-4 rounded-xl bg-secondary text-secondary-foreground font-semibold text-base transition-all duration-200 hover:bg-secondary/80 active:scale-95"
+          >
+            <RotateCcw size={20} />
+            Reset
+          </button>
+          {status !== "done" && (
+            <button
+              onClick={togglePause}
+              className="flex items-center gap-2 px-8 py-4 rounded-xl bg-primary text-primary-foreground font-bold text-base transition-all duration-200 hover:brightness-110 hover:shadow-lg hover:shadow-primary/30 active:scale-95"
+            >
+              {status === "running" ? <Pause size={22} /> : <Play size={22} />}
+              {status === "running" ? "Pause" : status === "paused" ? "Resume" : "Start"}
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Keyboard hints */}
       <p className="mt-8 text-xs text-muted-foreground">
