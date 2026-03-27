@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import vennLogo from "@/assets/venn-logo.png";
 import { Play, Pause, RotateCcw, ArrowLeft } from "lucide-react";
 
-type TimerStatus = "ready" | "running" | "paused" | "done";
+type TimerStatus = "ready" | "pre-countdown" | "running" | "paused" | "done";
 
 interface TimerScreenProps {
   totalSeconds: number;
@@ -38,9 +38,12 @@ const beep = (freq = 880, duration = 150) => {
   } catch {}
 };
 
+const PRE_COUNTDOWN_LABELS = ["3", "2", "1", "Go!"];
+
 const TimerScreen = ({ totalSeconds, onBack }: TimerScreenProps) => {
   const [remaining, setRemaining] = useState(totalSeconds);
   const [status, setStatus] = useState<TimerStatus>("ready");
+  const [preCount, setPreCount] = useState(0); // 0=3, 1=2, 2=1, 3=Go!
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const beeped = useRef<Set<number>>(new Set());
 
@@ -53,7 +56,8 @@ const TimerScreen = ({ totalSeconds, onBack }: TimerScreenProps) => {
 
   const start = useCallback(() => {
     if (status === "done") return;
-    setStatus("running");
+    setPreCount(0);
+    setStatus("pre-countdown");
   }, [status]);
 
   const pause = useCallback(() => {
@@ -63,15 +67,30 @@ const TimerScreen = ({ totalSeconds, onBack }: TimerScreenProps) => {
 
   const togglePause = useCallback(() => {
     if (status === "running") pause();
-    else if (status === "paused" || status === "ready") start();
+    else if (status === "paused") start();
+    else if (status === "ready") start();
   }, [status, pause, start]);
 
   const reset = useCallback(() => {
     clearTimer();
     setRemaining(totalSeconds);
     setStatus("ready");
+    setPreCount(0);
     beeped.current.clear();
   }, [totalSeconds]);
+
+  // Pre-countdown tick
+  useEffect(() => {
+    if (status !== "pre-countdown") return;
+    if (preCount >= 4) {
+      setStatus("running");
+      return;
+    }
+    const timeout = setTimeout(() => {
+      setPreCount((p) => p + 1);
+    }, 1000);
+    return () => clearTimeout(timeout);
+  }, [status, preCount]);
 
   // Tick
   useEffect(() => {
@@ -122,6 +141,7 @@ const TimerScreen = ({ totalSeconds, onBack }: TimerScreenProps) => {
 
   const statusLabel: Record<TimerStatus, string> = {
     ready: "Ready",
+    "pre-countdown": "Get Ready",
     running: "Running",
     paused: "Paused",
     done: "Time's Up",
@@ -129,6 +149,7 @@ const TimerScreen = ({ totalSeconds, onBack }: TimerScreenProps) => {
 
   const statusColor: Record<TimerStatus, string> = {
     ready: "text-primary",
+    "pre-countdown": "text-primary",
     running: "text-primary",
     paused: "text-warning",
     done: "text-urgent",
@@ -156,10 +177,19 @@ const TimerScreen = ({ totalSeconds, onBack }: TimerScreenProps) => {
         </span>
       </div>
 
+      {/* Pre-countdown overlay */}
+      {status === "pre-countdown" && (
+        <div className="timer-digit text-[10rem] md:text-[14rem] lg:text-[18rem] font-bold leading-none select-none text-primary animate-fade-scale" key={preCount}>
+          {PRE_COUNTDOWN_LABELS[preCount] ?? ""}
+        </div>
+      )}
+
       {/* Timer */}
-      <div className={`timer-digit text-[8rem] md:text-[12rem] lg:text-[16rem] font-bold leading-none select-none transition-colors duration-500 ${getTimerClass()}`}>
-        {status === "done" ? "00:00" : formatTime(remaining)}
-      </div>
+      {status !== "pre-countdown" && (
+        <div className={`timer-digit text-[8rem] md:text-[12rem] lg:text-[16rem] font-bold leading-none select-none transition-colors duration-500 ${getTimerClass()}`}>
+          {status === "done" ? "00:00" : formatTime(remaining)}
+        </div>
+      )}
 
       {status === "done" && (
         <p className="text-urgent text-3xl md:text-5xl font-bold mt-4 pulse-urgent tracking-wide">
@@ -167,32 +197,34 @@ const TimerScreen = ({ totalSeconds, onBack }: TimerScreenProps) => {
         </p>
       )}
 
-      {/* Controls */}
-      <div className="flex items-center gap-4 mt-10">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 px-6 py-4 rounded-xl bg-secondary text-secondary-foreground font-semibold text-base transition-all duration-200 hover:bg-secondary/80 active:scale-95"
-        >
-          <ArrowLeft size={20} />
-          Menu
-        </button>
-        <button
-          onClick={reset}
-          className="flex items-center gap-2 px-6 py-4 rounded-xl bg-secondary text-secondary-foreground font-semibold text-base transition-all duration-200 hover:bg-secondary/80 active:scale-95"
-        >
-          <RotateCcw size={20} />
-          Reset
-        </button>
-        {status !== "done" && (
+      {/* Controls — hidden while running or pre-countdown */}
+      {status !== "running" && status !== "pre-countdown" && (
+        <div className="flex items-center gap-4 mt-10">
           <button
-            onClick={togglePause}
-            className="flex items-center gap-2 px-8 py-4 rounded-xl bg-primary text-primary-foreground font-bold text-base transition-all duration-200 hover:brightness-110 hover:shadow-lg hover:shadow-primary/30 active:scale-95"
+            onClick={onBack}
+            className="flex items-center gap-2 px-6 py-4 rounded-xl bg-secondary text-secondary-foreground font-semibold text-base transition-all duration-200 hover:bg-secondary/80 active:scale-95"
           >
-            {status === "running" ? <Pause size={22} /> : <Play size={22} />}
-            {status === "running" ? "Pause" : status === "paused" ? "Resume" : "Start"}
+            <ArrowLeft size={20} />
+            Menu
           </button>
-        )}
-      </div>
+          <button
+            onClick={reset}
+            className="flex items-center gap-2 px-6 py-4 rounded-xl bg-secondary text-secondary-foreground font-semibold text-base transition-all duration-200 hover:bg-secondary/80 active:scale-95"
+          >
+            <RotateCcw size={20} />
+            Reset
+          </button>
+          {status !== "done" && (
+            <button
+              onClick={togglePause}
+              className="flex items-center gap-2 px-8 py-4 rounded-xl bg-primary text-primary-foreground font-bold text-base transition-all duration-200 hover:brightness-110 hover:shadow-lg hover:shadow-primary/30 active:scale-95"
+            >
+            <Play size={22} />
+            {status === "paused" ? "Resume" : "Start"}
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Keyboard hints */}
       <p className="mt-8 text-xs text-muted-foreground">
