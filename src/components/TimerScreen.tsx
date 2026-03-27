@@ -38,9 +38,12 @@ const beep = (freq = 880, duration = 150) => {
   } catch {}
 };
 
+const PRE_COUNTDOWN_LABELS = ["3", "2", "1", "Go!"];
+
 const TimerScreen = ({ totalSeconds, onBack }: TimerScreenProps) => {
   const [remaining, setRemaining] = useState(totalSeconds);
   const [status, setStatus] = useState<TimerStatus>("ready");
+  const [preCount, setPreCount] = useState(0); // 0=3, 1=2, 2=1, 3=Go!
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const beeped = useRef<Set<number>>(new Set());
 
@@ -53,7 +56,8 @@ const TimerScreen = ({ totalSeconds, onBack }: TimerScreenProps) => {
 
   const start = useCallback(() => {
     if (status === "done") return;
-    setStatus("running");
+    setPreCount(0);
+    setStatus("pre-countdown");
   }, [status]);
 
   const pause = useCallback(() => {
@@ -63,15 +67,30 @@ const TimerScreen = ({ totalSeconds, onBack }: TimerScreenProps) => {
 
   const togglePause = useCallback(() => {
     if (status === "running") pause();
-    else if (status === "paused" || status === "ready") start();
+    else if (status === "paused") start();
+    else if (status === "ready") start();
   }, [status, pause, start]);
 
   const reset = useCallback(() => {
     clearTimer();
     setRemaining(totalSeconds);
     setStatus("ready");
+    setPreCount(0);
     beeped.current.clear();
   }, [totalSeconds]);
+
+  // Pre-countdown tick
+  useEffect(() => {
+    if (status !== "pre-countdown") return;
+    if (preCount >= 4) {
+      setStatus("running");
+      return;
+    }
+    const timeout = setTimeout(() => {
+      setPreCount((p) => p + 1);
+    }, 1000);
+    return () => clearTimeout(timeout);
+  }, [status, preCount]);
 
   // Tick
   useEffect(() => {
