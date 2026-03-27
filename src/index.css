@@ -104,6 +104,12 @@
   .card-glass {
     @apply bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl;
   }
+
+  .logo-glow {
+    mask-image: radial-gradient(ellipse 85% 85% at center, black 50%, transparent 100%);
+    -webkit-mask-image: radial-gradient(ellipse 85% 85% at center, black 50%, transparent 100%);
+    filter: drop-shadow(0 0 12px hsl(var(--timer-glow) / 0.4)) drop-shadow(0 0 30px hsl(var(--timer-glow) / 0.2));
+  }
 }
 
 @keyframes pulse-glow {
