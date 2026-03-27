@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import vennLogo from "@/assets/venn-logo.png";
 import { Play, Pause, RotateCcw, ArrowLeft } from "lucide-react";
 
-type TimerStatus = "ready" | "running" | "paused" | "done";
+type TimerStatus = "ready" | "pre-countdown" | "running" | "paused" | "done";
 
 interface TimerScreenProps {
   totalSeconds: number;
