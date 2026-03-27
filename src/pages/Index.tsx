@@ -1,16 +1,25 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState, useCallback } from "react";
+import SetupScreen from "@/components/SetupScreen";
+import TimerScreen from "@/components/TimerScreen";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
-  return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
-    </div>
-  );
+const Index = () => {
+  const [screen, setScreen] = useState<"setup" | "timer">("setup");
+  const [totalSeconds, setTotalSeconds] = useState(0);
+
+  const handleStart = useCallback((seconds: number) => {
+    setTotalSeconds(seconds);
+    setScreen("timer");
+  }, []);
+
+  const handleBack = useCallback(() => {
+    setScreen("setup");
+  }, []);
+
+  if (screen === "timer") {
+    return <TimerScreen key={totalSeconds + "-" + Date.now()} totalSeconds={totalSeconds} onBack={handleBack} />;
+  }
+
+  return <SetupScreen onStart={handleStart} />;
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;
