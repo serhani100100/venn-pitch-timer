@@ -219,8 +219,8 @@ const TimerScreen = ({ totalSeconds, onBack }: TimerScreenProps) => {
               onClick={togglePause}
               className="flex items-center gap-2 px-8 py-4 rounded-xl bg-primary text-primary-foreground font-bold text-base transition-all duration-200 hover:brightness-110 hover:shadow-lg hover:shadow-primary/30 active:scale-95"
             >
-              {status === "running" ? <Pause size={22} /> : <Play size={22} />}
-              {status === "running" ? "Pause" : status === "paused" ? "Resume" : "Start"}
+            <Play size={22} />
+            {status === "paused" ? "Resume" : "Start"}
             </button>
           )}
         </div>
